@@ -50,7 +50,7 @@ jobs:
           context: ./FileStorage
           file: ./FileStorage/Dockerfile
           platforms: ${{ matrix.platform }}
-          provenance: false
+          #provenance: false
           push: true
           tags: |
             ghcr.io/${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}:latest
