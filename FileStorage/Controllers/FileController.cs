@@ -87,9 +87,9 @@ public class FileController: ControllerBase
         }
 
         [HttpGet("{guid}")]
-        public async Task<IActionResult> GetDocument(Guid id)
+        public async Task<IActionResult> GetDocument(Guid guid)
         {
-            var document = await _context.Documents.FindAsync(id);
+            var document = await _context.Documents.FindAsync(guid);
             if (document == null)
                 return NotFound();
 
