@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        platform: [linux/amd64, linux/arm64, linux/arm64/v8]
+        platform: [linux/amd64, linux/arm64]
 
     steps:
       - name: Checkout repository
@@ -50,7 +50,6 @@ jobs:
           context: ./FileStorage
           file: ./FileStorage/Dockerfile
           platforms: ${{ matrix.platform }}
-          #provenance: false
           push: true
           tags: |
             ghcr.io/${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}:latest
