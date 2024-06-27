@@ -1,8 +1,8 @@
 ﻿# Stage 1: Build environment
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-jammy AS build-env
 
 # Stage 2: Base image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-jammy-chiseled AS base
 USER $APP_UID
 WORKDIR /app
 EXPOSE 5000
@@ -13,7 +13,7 @@ ARG BUILD_CONFIGURATION=Release
 ARG TARGETARCH
 WORKDIR /src
 COPY ["FileStorage.csproj", "./"]
-RUN dotnet restore
+RUN dotnet restore -a $TARGETARCH
 COPY . .
 RUN dotnet build -c $BUILD_CONFIGURATION -o /app/build
 
