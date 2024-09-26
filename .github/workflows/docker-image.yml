@@ -17,9 +17,6 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platform: [linux/amd64, linux/arm64, linux/arm64/v8]
 
     steps:
       - name: Checkout repository
@@ -49,7 +46,7 @@ jobs:
         with:
           context: ./FileStorage
           file: ./FileStorage/Dockerfile
-          platforms: ${{ matrix.platform }}
+          platforms: linux/amd64,linux/arm64,linux/arm64/v8
           provenance: false
           push: true
           tags: |
