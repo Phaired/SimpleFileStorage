@@ -2,13 +2,6 @@
 
 SimpleFileStorage is a lightweight file storage service built with .NET. This README provides instructions for using the Docker image with `docker-compose`.
 
-
-## Instructions
-
-1. **Create SQLite Database**: Create the file `documents.db` using `sqlite3 documents.db ".exit"`
-2. **Create Uploads Directory**: Ensure you have an `uploads` directory in your project root to store uploaded files.
-
-
 ### Using Docker Compose
 
 To run the SimpleFileStorage service with Docker Compose, create a `docker-compose.yml` file with the following content:
