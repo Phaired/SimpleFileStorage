@@ -7,12 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using File = FileStorage.Models.File;
 
-
 namespace FileStorageTest
 {
     public class FileControllerTests
     {
-          private FileController _controller;
+        private FileController _controller;
         private FileContext _context;
         private string _rootPath;
         private string _testFilePath;
@@ -50,9 +49,8 @@ namespace FileStorageTest
         public async Task UploadDocument_NoFileUploaded_ReturnsBadRequest()
         {
             var result = await _controller.UploadDocument(null);
-
-            Assert.IsInstanceOf<BadRequestObjectResult>(result);
-            Assert.AreEqual("No file uploaded.", (result as BadRequestObjectResult).Value);
+            Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
+            Assert.That((result as BadRequestObjectResult).Value, Is.EqualTo("No file uploaded."));
         }
 
         [Test]
@@ -73,7 +71,7 @@ namespace FileStorageTest
 
             var result = await _controller.UploadDocument(mockFile.Object);
 
-            Assert.IsInstanceOf<OkObjectResult>(result);
+            Assert.That(result, Is.TypeOf<OkObjectResult>());
         }
 
         [Test]
@@ -83,7 +81,7 @@ namespace FileStorageTest
 
             var result = await _controller.GetDocument(nonExistentId);
 
-            Assert.IsInstanceOf<NotFoundResult>(result);
+            Assert.That(result, Is.TypeOf<NotFoundResult>());
         }
 
         [Test]
@@ -110,7 +108,7 @@ namespace FileStorageTest
 
             var result = await _controller.GetDocument(documentId);
 
-            Assert.IsInstanceOf<FileStreamResult>(result);
+            Assert.That(result, Is.TypeOf<FileStreamResult>());
         }
 
         [Test]
@@ -120,7 +118,7 @@ namespace FileStorageTest
 
             var result = await _controller.GetDocumentByHash(nonExistentHash);
 
-            Assert.IsInstanceOf<NotFoundResult>(result);
+            Assert.That(result, Is.TypeOf<NotFoundResult>());
         }
 
         [Test]
@@ -146,7 +144,7 @@ namespace FileStorageTest
 
             var result = await _controller.GetDocumentByHash("existinghash");
 
-            Assert.IsInstanceOf<FileStreamResult>(result);
+            Assert.That(result, Is.TypeOf<FileStreamResult>());
         }
     }
 }
