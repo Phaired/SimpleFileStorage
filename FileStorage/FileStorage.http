@@ -1,4 +1,4 @@
-@FilesStorage_HostAddress = http://localhost:8080
+@FilesStorage_HostAddress = http://localhost:8088
 
 POST {{FilesStorage_HostAddress}}/api/File 
 Content-Type: multipart/form-data; boundary=WebAppBoundary
@@ -10,7 +10,7 @@ Content-Disposition: form-data; name="file"; filename="text.txt"
 --WebAppBoundary--
 
 ### 
-GET {{FilesStorage_HostAddress}}/api/File/BC575858-6B2A-4693-85BE-0FB6E93E3639 
+GET {{FilesStorage_HostAddress}}/api/File/f2f84008-f764-48d7-8dc9-4fe115701e5a
 Accept: application/json
 
 ###
