@@ -22,7 +22,7 @@ services:
       - "5000:5000"
     volumes:
       - ./uploads:/app/uploads
-      - ./documents.db:/app/documents.db
+      - ./data:/app/data/
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
 ```

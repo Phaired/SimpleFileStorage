@@ -1,19 +1,14 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using FileStorage.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Ajouter les services au conteneur.
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<FileContext>(options =>
-    options.UseSqlite("Data Source=documents.db"));
+    options.UseSqlite("Data Source=Data/documents.db"));
 
 builder.WebHost.ConfigureKestrel(options =>
 {
@@ -22,14 +17,21 @@ builder.WebHost.ConfigureKestrel(options =>
 
 var app = builder.Build();
 
-// Ensure the database is created.
+// S'assurer que le répertoire Data existe
+var dataDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Data");
+if (!Directory.Exists(dataDirectory))
+{
+    Directory.CreateDirectory(dataDirectory);
+}
+
+// S'assurer que la base de données est créée.
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<FileContext>();
     dbContext.Database.Migrate();
 }
 
-// Configure the HTTP request pipeline.
+// Configurer le pipeline des requêtes HTTP.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
