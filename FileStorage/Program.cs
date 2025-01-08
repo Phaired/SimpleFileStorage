@@ -1,34 +1,52 @@
 using FileStorage.Models;
 using FileStorage.Auth;
-using Microsoft.AspNetCore.Authentication; // <- Le namespace où vous avez mis vos handlers
+using Microsoft.AspNetCore.Authentication; // Namespace for authentication handlers
 using Microsoft.EntityFrameworkCore;
+using File = System.IO.File;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// [1] Ajouter l’authentification avec deux schémas : "Upload" et "Download"
+// [1] Add authentication with two schemes: "Upload" and "Download"
 builder.Services
     .AddAuthentication(options =>
     {
-        // Nous n’imposons pas de schéma par défaut ici
-        options.DefaultScheme = null; 
+        // No default scheme is enforced here
+        options.DefaultScheme = null;
     })
-    .AddScheme<AuthenticationSchemeOptions, UploadTokenAuthenticationHandler>("Upload", options => {})
-    .AddScheme<AuthenticationSchemeOptions, DownloadTokenAuthenticationHandler>("Download", options => {});
+    .AddScheme<AuthenticationSchemeOptions, UploadTokenAuthenticationHandler>("Upload", options => { })
+    .AddScheme<AuthenticationSchemeOptions, DownloadTokenAuthenticationHandler>("Download", options => { });
 
-// [2] Ajouter les services MVC, EF, etc.
+// [2] Add MVC services, Entity Framework, Swagger, CORS, etc.
 
+// Define the data directory path
 var dataDirectory = Path.Combine(Directory.GetCurrentDirectory(), "data");
+
+// Check if the data directory exists; if not, create it
 if (!Directory.Exists(dataDirectory))
 {
     Directory.CreateDirectory(dataDirectory);
 }
 
+// Define the database file path
+var dbPath = Path.Combine(dataDirectory, "documents.db");
+
+// Check if the database file exists; if not, create it
+if (!File.Exists(dbPath))
+{
+    // Create an empty database file
+    File.Create(dbPath).Dispose();
+    Console.WriteLine($"Database file created at: {dbPath}");
+}
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<FileContext>(options =>
-    options.UseSqlite("Data Source=data/documents.db"));
 
+// Configure Entity Framework to use SQLite with the specified database path
+builder.Services.AddDbContext<FileContext>(options =>
+    options.UseSqlite($"Data Source={dbPath}"));
+
+// Configure CORS to allow all origins, methods, and headers
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
@@ -39,30 +57,41 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-
-// [3] Construction de l’application
+// [3] Build the application
 var app = builder.Build();
+
+// Enable CORS with the defined policy
 app.UseCors("AllowAll");
 
-// Migrations + création des dossiers...
+// Apply migrations and ensure the database is up-to-date
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<FileContext>();
-    dbContext.Database.Migrate();
+    try
+    {
+        dbContext.Database.Migrate();
+        Console.WriteLine("Database migration applied successfully.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"An error occurred while migrating the database: {ex.Message}");
+        throw; // Re-throw the exception after logging
+    }
 }
 
-// Swagger en dev...
+// Enable Swagger in development environments
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// [4] Activer l’authentification et l’autorisation
+// [4] Enable authentication and authorization middleware
 app.UseAuthentication();
 app.UseAuthorization();
 
-// [5] Contrôleurs
+// [5] Map controller routes
 app.MapControllers();
+
+// Start the application
 app.Run();
