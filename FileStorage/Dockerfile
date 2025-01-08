@@ -25,17 +25,24 @@ RUN dotnet publish -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 FROM base AS final
 WORKDIR /app
 
-# Create the /app/data and /app/uploads directories and set initial permissions
+# Switch to root user to set up directories and permissions
+USER root
+
+# Create necessary directories and set permissions
 RUN mkdir -p /app/data /app/uploads && chmod -R 755 /app/data /app/uploads
 
+# (Optional) Create a non-root user for running the application
+# Replace 'appuser' with your desired username
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+# Change ownership of the directories to the non-root user
+RUN chown -R appuser:appuser /app/data /app/uploads
+
+# Switch back to the non-root user
+USER appuser
+
+# Copy the published application
 COPY --from=publish /app/publish .
 
-# Copy the entrypoint script
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# If running as a non-root user, ensure ownership is set
-# RUN chown -R appuser:appuser /app/data /app/uploads
-
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["dotnet", "FileStorage.dll"]
+# Set the entrypoint
+ENTRYPOINT ["dotnet", "FileStorage.dll"]
