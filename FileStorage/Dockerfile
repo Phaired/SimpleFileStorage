@@ -24,5 +24,18 @@ RUN dotnet publish -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 # Stage 5: Final image
 FROM base AS final
 WORKDIR /app
+
+# Create the /app/data and /app/uploads directories and set initial permissions
+RUN mkdir -p /app/data /app/uploads && chmod -R 755 /app/data /app/uploads
+
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "FileStorage.dll"]
+
+# Copy the entrypoint script
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# If running as a non-root user, ensure ownership is set
+# RUN chown -R appuser:appuser /app/data /app/uploads
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["dotnet", "FileStorage.dll"]

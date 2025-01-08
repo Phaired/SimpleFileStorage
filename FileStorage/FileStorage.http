@@ -2,12 +2,12 @@
 
 POST {{FilesStorage_HostAddress}}/api/File 
 Content-Type: multipart/form-data; boundary=WebAppBoundary
-Token: sample 
+Token: sample
 
 --WebAppBoundary
-Content-Disposition: form-data; name="file"; filename="text.txt"
+Content-Disposition: form-data; name="file"; filename="img.png"
 
-< ./text.txt
+< ./img.png
 --WebAppBoundary--
 
 ### 
