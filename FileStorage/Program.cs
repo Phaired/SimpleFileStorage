@@ -17,7 +17,7 @@ builder.Services
 
 // [2] Ajouter les services MVC, EF, etc.
 
-var dataDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Data");
+var dataDirectory = Path.Combine(Directory.GetCurrentDirectory(), "data");
 if (!Directory.Exists(dataDirectory))
 {
     Directory.CreateDirectory(dataDirectory);
@@ -27,7 +27,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<FileContext>(options =>
-    options.UseSqlite("Data Source=Data/documents.db"));
+    options.UseSqlite("Data Source=data/documents.db"));
 
 builder.Services.AddCors(options =>
 {
