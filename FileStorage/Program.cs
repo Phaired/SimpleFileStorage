@@ -1,45 +1,61 @@
-using Microsoft.EntityFrameworkCore;
 using FileStorage.Models;
+using FileStorage.Auth;
+using Microsoft.AspNetCore.Authentication; // <- Le namespace où vous avez mis vos handlers
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Ajouter les services au conteneur.
+// [1] Ajouter l’authentification avec deux schémas : "Upload" et "Download"
+builder.Services
+    .AddAuthentication(options =>
+    {
+        // Nous n’imposons pas de schéma par défaut ici
+        options.DefaultScheme = null; 
+    })
+    .AddScheme<AuthenticationSchemeOptions, UploadTokenAuthenticationHandler>("Upload", options => {})
+    .AddScheme<AuthenticationSchemeOptions, DownloadTokenAuthenticationHandler>("Download", options => {});
+
+// [2] Ajouter les services MVC, EF, etc.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<FileContext>(options =>
     options.UseSqlite("Data Source=Data/documents.db"));
 
-builder.WebHost.ConfigureKestrel(options =>
+builder.Services.AddCors(options =>
 {
-    options.ListenAnyIP(5000);
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
 });
 
+
+
+// [3] Construction de l’application
 var app = builder.Build();
+app.UseCors("AllowAll");
 
-// S'assurer que le répertoire Data existe
-var dataDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Data");
-if (!Directory.Exists(dataDirectory))
-{
-    Directory.CreateDirectory(dataDirectory);
-}
-
-// S'assurer que la base de données est créée.
+// Migrations + création des dossiers...
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<FileContext>();
     dbContext.Database.Migrate();
 }
 
-// Configurer le pipeline des requêtes HTTP.
+// Swagger en dev...
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// [4] Activer l’authentification et l’autorisation
+app.UseAuthentication();
 app.UseAuthorization();
 
+// [5] Contrôleurs
 app.MapControllers();
-
 app.Run();

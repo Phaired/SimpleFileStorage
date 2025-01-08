@@ -18,7 +18,12 @@ services:
       - ./data:/app/data/
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - DownloadToken=sample
+      - UploadToken=sample
 ```
+
+You can provide some token if you want to add auth for upload/download file.
+
 
 ### Running the Service
 

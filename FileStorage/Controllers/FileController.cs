@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using FileStorage.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FileStorage.Controllers;
 
@@ -19,6 +20,7 @@ public class FileController: ControllerBase
         }
 
         [HttpPost]
+        [Authorize(AuthenticationSchemes = "Upload")]
         public async Task<IActionResult> UploadDocument(IFormFile? file)
         {
             if (file == null || file.Length == 0)
@@ -87,19 +89,38 @@ public class FileController: ControllerBase
         }
 
         [HttpGet("{guid}")]
-        public async Task<IActionResult> GetDocument(Guid guid)
+        public async Task<IActionResult> GetDocument(Guid guid, bool download = false)
         {
             var document = await _context.Documents.FindAsync(guid);
             if (document == null)
-                return NotFound();
+                return NotFound("Document not found in database.");
 
-            var fileStream = new FileStream(document.FilePath, FileMode.Open, FileAccess.Read);
-            var mimeType = GetMimeType(document.FilePath);
-            return new FileStreamResult(fileStream, mimeType)
+            if (!System.IO.File.Exists(document.FilePath))
+                return NotFound("File not found on disk.");
+
+            try
             {
-                FileDownloadName = document.Name
-            };
+                var fileStream = new FileStream(document.FilePath, FileMode.Open, FileAccess.Read);
+                var mimeType = GetMimeType(document.FilePath);
+
+                if (download)
+                {
+                    // Force download by setting Content-Disposition to 'attachment'
+                    return File(fileStream, mimeType, document.Name);
+                }
+                else
+                {
+                    // Display inline by setting Content-Disposition to 'inline'
+                    return File(fileStream, mimeType);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error accessing file: {ex.Message}");
+                return StatusCode(500, "Internal server error.");
+            }
         }
+
 
         [HttpGet("hash/{hash}")]
         public async Task<IActionResult> GetDocumentByHash(string hash)
