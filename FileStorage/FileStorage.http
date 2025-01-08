@@ -1,7 +1,8 @@
-@FilesStorage_HostAddress = http://localhost:8088
+@FilesStorage_HostAddress = http://wardensquad.fr
 
 POST {{FilesStorage_HostAddress}}/api/File 
 Content-Type: multipart/form-data; boundary=WebAppBoundary
+Token: sample 
 
 --WebAppBoundary
 Content-Disposition: form-data; name="file"; filename="text.txt"
@@ -10,8 +11,8 @@ Content-Disposition: form-data; name="file"; filename="text.txt"
 --WebAppBoundary--
 
 ### 
-GET {{FilesStorage_HostAddress}}/api/File/f2f84008-f764-48d7-8dc9-4fe115701e5a
-Accept: application/json
+GET {{FilesStorage_HostAddress}}/api/File/9189530f-f5e4-419c-9bb2-3ea3807f7f8
+
 
 ###
 
