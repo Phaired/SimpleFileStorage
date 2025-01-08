@@ -16,6 +16,13 @@ builder.Services
     .AddScheme<AuthenticationSchemeOptions, DownloadTokenAuthenticationHandler>("Download", options => {});
 
 // [2] Ajouter les services MVC, EF, etc.
+
+var dataDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Data");
+if (!Directory.Exists(dataDirectory))
+{
+    Directory.CreateDirectory(dataDirectory);
+}
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
