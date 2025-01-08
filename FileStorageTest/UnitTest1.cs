@@ -81,7 +81,7 @@ namespace FileStorageTest
 
             var result = await _controller.GetDocument(nonExistentId);
 
-            Assert.That(result, Is.TypeOf<NotFoundResult>());
+            Assert.That(result, Is.TypeOf<NotFoundObjectResult>());
         }
 
         [Test]
