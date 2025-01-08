@@ -1,14 +1,14 @@
 #!/bin/bash
 set -e
 
-# Set permissions for /app/data
-chmod -R 755 /app/data
+# Ensure /app/data and /app/uploads exist
+mkdir -p /app/data /app/uploads
 
-# Set permissions for /app/uploads
-chmod -R 755 /app/uploads
+# Set permissions for /app/data and /app/uploads
+chmod -R 755 /app/data /app/uploads
 
-# Optionally, change ownership if running as a non-root user
-# chown -R appuser:appuser /app/data /app/uploads
+# Change ownership to appuser
+chown -R appuser:appuser /app/data /app/uploads
 
-# Execute the original entrypoint
-exec "$@"
+# Execute the application as appuser
+exec su appuser -c "dotnet FileStorage.dll"
