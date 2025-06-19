@@ -137,6 +137,42 @@ public class FileController: ControllerBase
             };
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteDocument(Guid id)
+        {
+            var document = await _context.Documents.FindAsync(id);
+            if (document == null)
+                return NotFound("Document not found.");
+
+            // Try to delete the file from disk if present
+            try
+            {
+                if (System.IO.File.Exists(document.FilePath))
+                {
+                    System.IO.File.Delete(document.FilePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting file: {ex.Message}");
+                return StatusCode(500, "Error deleting file from disk.");
+            }
+
+            // Remove database entry
+            _context.Documents.Remove(document);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting document from database: {ex.Message}");
+                return StatusCode(500, "Error deleting document from database.");
+            }
+
+            return Ok();
+        }
+
         private string GetMimeType(string filePath)
         {
             var provider = new FileExtensionContentTypeProvider();

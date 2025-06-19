@@ -146,5 +146,39 @@ namespace FileStorageTest
 
             Assert.That(result, Is.TypeOf<FileStreamResult>());
         }
+
+        [Test]
+        public async Task DeleteDocument_NonExistentId_ReturnsNotFound()
+        {
+            var result = await _controller.DeleteDocument(Guid.NewGuid());
+
+            Assert.That(result, Is.TypeOf<NotFoundObjectResult>());
+        }
+
+        [Test]
+        public async Task DeleteDocument_ExistingId_RemovesFileAndEntry()
+        {
+            var documentId = Guid.NewGuid();
+            var document = new File
+            {
+                Id = documentId,
+                Name = "test.txt",
+                FilePath = Path.Combine(_rootPath, "test.txt"),
+                Hash = "hash",
+                UploadedAt = DateTime.UtcNow
+            };
+            _context.Documents.Add(document);
+            await _context.SaveChangesAsync();
+
+            // Create the file
+            _testFilePath = document.FilePath;
+            await System.IO.File.WriteAllTextAsync(_testFilePath, "content");
+
+            var result = await _controller.DeleteDocument(documentId);
+
+            Assert.That(result, Is.TypeOf<OkResult>());
+            Assert.That(await _context.Documents.FindAsync(documentId), Is.Null);
+            Assert.That(System.IO.File.Exists(_testFilePath), Is.False);
+        }
     }
 }
