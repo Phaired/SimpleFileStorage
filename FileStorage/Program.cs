@@ -6,6 +6,9 @@ using File = System.IO.File;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Read PostgreSQL connection string if provided
+var postgresConnection = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION_STRING");
+
 // [1] Add authentication with two schemes: "Upload" and "Download"
 builder.Services
     .AddAuthentication(options =>
@@ -30,8 +33,8 @@ if (!Directory.Exists(dataDirectory))
 // Define the database file path
 var dbPath = Path.Combine(dataDirectory, "documents.db");
 
-// Check if the database file exists; if not, create it
-if (!File.Exists(dbPath))
+// Check if the database file exists when using SQLite
+if (string.IsNullOrEmpty(postgresConnection) && !File.Exists(dbPath))
 {
     // Create an empty database file
     File.Create(dbPath).Dispose();
@@ -42,9 +45,19 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure Entity Framework to use SQLite with the specified database path
-builder.Services.AddDbContext<FileContext>(options =>
-    options.UseSqlite($"Data Source={dbPath}"));
+// Determine if a PostgreSQL connection string is provided
+if (!string.IsNullOrEmpty(postgresConnection))
+{
+    Console.WriteLine("Using PostgreSQL database.");
+    builder.Services.AddDbContext<FileContext>(options =>
+        options.UseNpgsql(postgresConnection));
+}
+else
+{
+    Console.WriteLine("Using SQLite database.");
+    builder.Services.AddDbContext<FileContext>(options =>
+        options.UseSqlite($"Data Source={dbPath}"));
+}
 
 // Configure CORS to allow all origins, methods, and headers
 builder.Services.AddCors(options =>
