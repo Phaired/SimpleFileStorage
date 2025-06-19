@@ -20,9 +20,15 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - DownloadToken=sample
       - UploadToken=sample
+      # Uncomment the next line to use PostgreSQL instead of SQLite
+      # - POSTGRES_CONNECTION_STRING=Host=postgres;Port=5432;Database=storage;Username=user;Password=pass
 ```
 
 You can provide some token if you want to add auth for upload/download file.
+
+### Database Configuration
+
+By default the service uses a local SQLite database stored in the mounted `data` directory. To use PostgreSQL instead, provide a connection string via the `POSTGRES_CONNECTION_STRING` environment variable as shown in the compose snippet above.
 
 
 ### Running the Service
