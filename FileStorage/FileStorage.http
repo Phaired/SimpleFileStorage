@@ -1,8 +1,8 @@
-@FilesStorage_HostAddress = http://wardensquad.fr
+@FilesStorage_HostAddress = https://sfs.wardensquad.fr
 
 POST {{FilesStorage_HostAddress}}/api/File 
 Content-Type: multipart/form-data; boundary=WebAppBoundary
-Token: sample
+Token: tFsxxz+2B7dOEEHwxiyDJCuIJZQHg7cFN376mw+C31Y=
 
 --WebAppBoundary
 Content-Disposition: form-data; name="file"; filename="img.png"
